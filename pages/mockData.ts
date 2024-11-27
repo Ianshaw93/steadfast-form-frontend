@@ -180,7 +180,8 @@ const mockData = {
           "Last Name": "Landlord",
           "Email": "test@gmail.com",
           "Contact AutoNumber": 4,
-          "Contact ID": "CONTACT-000004"
+          "Contact ID": "CONTACT-000004",
+          "Company": "Zone Lettings"
         }
       },
       {
@@ -195,7 +196,8 @@ const mockData = {
           "Last Name": "Dixon",
           "Email": "test@gmail.com",
           "Contact AutoNumber": 3,
-          "Contact ID": "CONTACT-000003"
+          "Contact ID": "CONTACT-000003",
+          "Company": "None"
         }
       },
       {
@@ -210,7 +212,8 @@ const mockData = {
           "Last Name": "Jamison",
           "Email": "test@gmail.com",
           "Contact AutoNumber": 2,
-          "Contact ID": "CONTACT-000002"
+          "Contact ID": "CONTACT-000002",
+          "Company": "Happy Lets"
         }
       },
       {
@@ -225,7 +228,8 @@ const mockData = {
           "Last Name": "Davison",
           "Email": "test@gmail.com",
           "Contact AutoNumber": 1,
-          "Contact ID": "CONTACT-000001"
+          "Contact ID": "CONTACT-000001",
+          "Company": "None"
         }
       }
     ],
