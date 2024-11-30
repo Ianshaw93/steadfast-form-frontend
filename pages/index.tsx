@@ -108,9 +108,8 @@ export default function ComplianceCheckForm() {
     owner: Contact;
     tenants: Contact[];
   } | null>(null);
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
-  // @ts-ignore
   const [isNewProperty, setIsNewProperty] = useState(false);
   // @ts-ignore
   const [newPropertyData, setNewPropertyData] = useState({
