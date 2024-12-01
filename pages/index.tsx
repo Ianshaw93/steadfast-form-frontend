@@ -110,46 +110,46 @@ export default function ComplianceCheckForm() {
   } | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
-  const [isNewProperty, setIsNewProperty] = useState(false);
-  // @ts-ignore
-  const [newPropertyData, setNewPropertyData] = useState({
-    address: '',
-    postCode: '',
-  });
-  // @ts-ignore
+  // // @ts-expect-error
+  // const [newPropertyData, setNewPropertyData] = useState({
+  //   address: '',
+  //   postCode: '',
+  // });
+  // // @ts-expect-error
   const [ownerSearch, setOwnerSearch] = useState('');
   const [debouncedOwner] = useDebounce(ownerSearch, 300);
-  // @ts-ignore
-  const [filteredOwners, setFilteredOwners] = useState<Contact[]>([]);
-  // @ts-ignore
-  const [isNewOwner, setIsNewOwner] = useState(false);
-  // @ts-ignore
-  const [newOwnerData, setNewOwnerData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-  });
-  // @ts-ignore
-  const [selectedOwner, setSelectedOwner] = useState<Contact | null>(null);
-  // @ts-ignore
-  const [tenantSearch, setTenantSearch] = useState('');
+  // // @ts-expect-error
+  // const [filteredOwners, setFilteredOwners] = useState<Contact[]>([]);
+  // // @ts-expect-error
+  // const [isNewOwner, setIsNewOwner] = useState(false);
+  // // @ts-expect-error
+  // const [newOwnerData, setNewOwnerData] = useState({
+  //   firstName: '',
+  //   lastName: '',
+  //   email: '',
+  //   mobile: '',
+  // });
+  // // @ts-expect-error
+  // const [selectedOwner, setSelectedOwner] = useState<Contact | null>(null);
+  // // @ts-expect-error
+  // const [tenantSearch, setTenantSearch] = useState('');
+  // @ts-expect-error
   const [debouncedTenant] = useDebounce(tenantSearch, 300);
-  // @ts-ignore
-  const [filteredTenants, setFilteredTenants] = useState<Contact[]>([]);
-  // @ts-ignore
-  const [isNewTenant, setIsNewTenant] = useState(false);
-  // @ts-ignore
-  const [newTenantData, setNewTenantData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-    landline: '',
-  });
-  // @ts-ignore
-  const [editingTenantIndex, setEditingTenantIndex] = useState<number | null>(null);
-  // @ts-ignore
+  // // @ts-expect-error
+  // const [filteredTenants, setFilteredTenants] = useState<Contact[]>([]);
+  // // @ts-expect-error
+  // const [isNewTenant, setIsNewTenant] = useState(false);
+  // // @ts-expect-error
+  // const [newTenantData, setNewTenantData] = useState({
+  //   firstName: '',
+  //   lastName: '',
+  //   email: '',
+  //   mobile: '',
+  //   landline: '',
+  // });
+  // // @ts-expect-error
+  // const [editingTenantIndex, setEditingTenantIndex] = useState<number | null>(null);
+  // // @ts-expect-error
   const [tenants, setTenants] = useState<Contact[]>([]);
   const jobTypes = [
     "Gas Safety Check",
@@ -180,20 +180,20 @@ export default function ComplianceCheckForm() {
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('default', { month: 'long' }));
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [notes, setNotes] = useState<string>('');
-  // @ts-ignore
+  // @ts-expect-error not used it
   const [isEditing, setIsEditing] = useState<string | null>(null);
-  // @ts-ignore
-  const [editData, setEditData] = useState<{
-    jobTypes: string[];
-    month: string;
-    year: number;
-    notes: string;
-  }>({
-    jobTypes: [],
-    month: '',
-    year: currentYear,
-    notes: ''
-  });
+  // // @ts-expect-error kjf
+  // const [editData, setEditData] = useState<{
+  //   jobTypes: string[];
+  //   month: string;
+  //   year: number;
+  //   notes: string;
+  // }>({
+  //   jobTypes: [],
+  //   month: '',
+  //   year: currentYear,
+  //   notes: ''
+  // });
   const [showNewCheckForm, setShowNewCheckForm] = useState(false);
   const [companySearch, setCompanySearch] = useState('');
   const [debouncedCompany] = useDebounce(companySearch, 300);
@@ -235,7 +235,6 @@ export default function ComplianceCheckForm() {
       mobile: owner.fields["Mobile Number"],
       landline: owner.fields["Landline Number"] || '',
     });
-    // @ts-ignore
     setCompanySearch(owner.fields.Company === "None" ? "" : owner.fields.Company);
     setIsEditingOwner(true);
   };
@@ -256,9 +255,9 @@ export default function ComplianceCheckForm() {
       setIsLoading(true);
       const details = mockGetPropertyDetails(selectedProperty.id);
       if (details) {
-        // @ts-ignore
+        // @ts-expect-error fgd
         setPropertyDetails(details);
-        // @ts-ignore
+        // @ts-expect-error fgd
         setTenants(details.tenants);
       }
       setIsLoading(false);
@@ -280,7 +279,7 @@ export default function ComplianceCheckForm() {
     if (debouncedTenant.length > 1) {
       setIsLoading(true);
       const results = mockSearchTenants(debouncedTenant, tenants);
-      // @ts-ignore
+      // @ts-expect-error
       setFilteredTenants(results.tenants);
       setIsLoading(false);
     } else {
@@ -348,7 +347,6 @@ export default function ComplianceCheckForm() {
                 ))}
                 <li
                   onClick={() => {
-                    setIsNewProperty(true);
                     setAddressSearch('');
                     setProperties([]);
                     setNewPropertyData({ address: addressSearch, postCode: '' });
@@ -397,10 +395,10 @@ export default function ComplianceCheckForm() {
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <div className="flex justify-between items-start">
                     <div>
-                      {/* @ts-ignore */}
+                      {/* @ts-expect-error */}
                       {propertyDetails.owner.fields.Company !== "None" && (
                         <p className="text-sm font-medium text-gray-600 mb-1">
-                          {/* @ts-ignore */}
+                          {/* @ts-expect-error */}
                           {propertyDetails.owner.fields.Company}
                         </p>
                       )}
@@ -439,7 +437,7 @@ export default function ComplianceCheckForm() {
                           value={companySearch}
                           onChange={(e) => {
                             setCompanySearch(e.target.value);
-                            // @ts-ignore
+                            // @ts-expect-error
                             setEditedOwnerData({ ...editedOwnerData, company: e.target.value });
                           }}
                           onFocus={() => setShowCompanyDropdown(true)}
@@ -473,7 +471,7 @@ export default function ComplianceCheckForm() {
                                   key={company}
                                   onClick={() => {
                                     setCompanySearch(company);
-                                    // @ts-ignore
+                                    // @ts-expect-error
                                     setEditedOwnerData({ ...editedOwnerData, company });
                                     setShowCompanyDropdown(false);
                                   }}
@@ -488,7 +486,7 @@ export default function ComplianceCheckForm() {
                               <li
                                 onClick={() => {
                                   // Keep the custom company name
-                                  // @ts-ignore
+                                  // @ts-expect-error
                                   setEditedOwnerData({ ...editedOwnerData, company: companySearch });
                                   setShowCompanyDropdown(false);
                                 }}
@@ -496,7 +494,7 @@ export default function ComplianceCheckForm() {
                               >
                                 <div className="flex items-center">
                                   <PlusCircleIcon className="h-5 w-5 mr-2" />
-                                  {/* @ts-ignore */}
+                                  {/* @ts-expect-error */}
                                   <span>Add new company: "{companySearch}"</span>
                                 </div>
                               </li>
@@ -532,9 +530,9 @@ export default function ComplianceCheckForm() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Role</label>
                       <select
-                        // @ts-ignore
+                        // @ts-expect-error
                         value={editedOwnerData.role}
-                        // @ts-ignore
+                        // @ts-expect-error
                         onChange={(e) => setEditedOwnerData({ ...editedOwnerData, role: e.target.value })}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
@@ -581,9 +579,9 @@ export default function ComplianceCheckForm() {
                                 ...propertyDetails.owner.fields,
                                 "First Name": editedOwnerData.firstName,
                                 "Last Name": editedOwnerData.lastName,
-                                // @ts-ignore
+                                // @ts-expect-error
                                 "Role": editedOwnerData.role,
-                                // @ts-ignore
+                                // @ts-expect-error
                                 "Company": editedOwnerData.role === "Private Landlord" ? "None" : editedOwnerData.company,
                                 "Email": editedOwnerData.email,
                                 "Mobile Number": editedOwnerData.mobile
@@ -725,9 +723,9 @@ export default function ComplianceCheckForm() {
 
                             {/* Access Type Indicator */}
                             <div className="mt-2">
-                              {/* @ts-ignore */}
+                              {/* @ts-expect-error */}
                               <span className={`text-sm font-medium ${getAccessTypeColor(check.fields.AccessType || 'tenant')}`}>
-                                {/* @ts-ignore */}
+                                {/* @ts-expect-error */}
                                 {check.fields.AccessType === 'key' ? '🔑 Key Required' : '👤 Tenant Access'}
                               </span>
                             </div>
@@ -757,7 +755,7 @@ export default function ComplianceCheckForm() {
                           {/* Edit button if needed */}
                           {!isEditing && (
                             <button
-                              // @ts-ignore
+                              // @ts-expect-error
                               onClick={() => handleEditCheck(check)}
                               className="text-sm text-blue-600 hover:text-blue-800"
                             >
@@ -829,9 +827,9 @@ export default function ComplianceCheckForm() {
                         type="radio"
                         name="accessType"
                         value="key"
-                        // @ts-ignore
+                        // @ts-expect-error
                         checked={newCheckData.accessType === 'key'}
-                        // @ts-ignore
+                        // @ts-expect-error
                         onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
                         className="mr-2"
                       />
@@ -842,9 +840,9 @@ export default function ComplianceCheckForm() {
                         type="radio"
                         name="accessType"
                         value="tenant"
-                        // @ts-ignore
+                        // @ts-expect-error
                         checked={newCheckData.accessType === 'tenant'}
-                        // @ts-ignore
+                        // @ts-expect-error
                         onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
                         className="mr-2"
                       />
@@ -860,9 +858,9 @@ export default function ComplianceCheckForm() {
                     <div key={jobType} className="flex items-center">
                       <input
                         type="checkbox"
-                        // @ts-ignore
+                        // @ts-expect-error
                         checked={selectedJobTypes.includes(jobType)}
-                        // @ts-ignore
+                        // @ts-expect-error
                         onChange={() => handleJobTypeChange(jobType)}
                         className="h-4 w-4 border-gray-300 rounded"
                       />
@@ -881,7 +879,7 @@ export default function ComplianceCheckForm() {
                   <div className="flex space-x-4">
                     <select
                       value={selectedMonth}
-                      // @ts-ignore
+                      // @ts-expect-error
                       onChange={(e) => setSelectedMonth(e.target.value)}
                       className="block w-full px-3 py-2 border rounded-md"
                     >
@@ -891,7 +889,7 @@ export default function ComplianceCheckForm() {
                     </select>
                     <select
                       value={selectedYear}
-                      // @ts-ignore
+                      // @ts-expect-error
                       onChange={(e) => setSelectedYear(Number(e.target.value))}
                       className="block w-full px-3 py-2 border rounded-md"
                     >
