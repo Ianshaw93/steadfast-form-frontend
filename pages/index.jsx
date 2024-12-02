@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { Property, Contact } from '@/types/airtable';
 import { MagnifyingGlassIcon as SearchIcon, XCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import mockData from './mockData';
 
-const mockSearchProperties = (query: string) => {
+const jobTypes = [
+  'Gas Safety Check',
+  'Legionella Testing',
+  'Smoke, Heat, and CO Alarms Testing',
+  'Electrical Safety Check',
+  'PAT Testing',
+  'EPC (Energy Performance Certificate)',
+  'Lead and Water Testing',
+  'Boiler Maintenance and Pressure Checks'
+];
+
+const mockSearchProperties = (query) => {
   const properties = mockData.data.Properties.filter(property => 
     property.fields.Address.toLowerCase().includes(query.toLowerCase()) ||
     property.fields["Post Code"].toLowerCase().includes(query.toLowerCase())
@@ -14,7 +24,7 @@ const mockSearchProperties = (query: string) => {
   return { properties };
 };
 
-const mockGetPropertyDetails = (propertyId: string) => {
+const mockGetPropertyDetails = (propertyId) => {
   const property = mockData.data.Properties.find(p => p.id === propertyId);
   if (!property) return null;
 
@@ -29,7 +39,7 @@ const mockGetPropertyDetails = (propertyId: string) => {
   return { property, owner, tenants };
 };
 
-const mockSearchOwners = (query: string) => {
+const mockSearchOwners = (query) => {
   const owners = mockData.data.Contacts.filter(contact => 
     `${contact.fields["First Name"]} ${contact.fields["Last Name"]}`.toLowerCase().includes(query.toLowerCase()) ||
     contact.fields.Email.toLowerCase().includes(query.toLowerCase())
@@ -37,7 +47,7 @@ const mockSearchOwners = (query: string) => {
   return { owners };
 };
 
-const mockSearchTenants = (query: string, existingTenants: Contact[]) => {
+const mockSearchTenants = (query, existingTenants) => {
   const existingTenantIds = existingTenants.map(t => t.id);
   const filteredTenants = mockData.data.Tenants.filter(tenant => 
     !existingTenantIds.includes(tenant.id) && (
@@ -49,7 +59,7 @@ const mockSearchTenants = (query: string, existingTenants: Contact[]) => {
   return { tenants: filteredTenants };
 };
 
-const getAccessTypeColor = (accessType: string) => {
+const getAccessTypeColor = (accessType) => {
   switch (accessType) {
     case 'key':
       return 'text-red-600';
@@ -60,7 +70,7 @@ const getAccessTypeColor = (accessType: string) => {
   }
 };
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status) => {
   switch (status) {
     case 'Completed':
       return 'bg-green-50 text-green-800 border-green-200';
@@ -74,8 +84,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-// Add this helper function for job type colors
-const getJobTypeColor = (jobType: string) => {
+const getJobTypeColor = (jobType) => {
   switch (jobType) {
     case 'Gas Safety Check':
       return 'bg-red-100 text-red-800 border-red-200';
@@ -98,58 +107,34 @@ const getJobTypeColor = (jobType: string) => {
   }
 };
 
-// Update the interface to include 'unconfirmed' as a valid access type
-interface NewCheckData {
-  accessType: 'key' | 'tenant' | 'unconfirmed';
-  jobTypes: string[];
-  month: string;
-  year: number;
-  notes: string;
-}
-
 export default function ComplianceCheckForm() {
   const [addressSearch, setAddressSearch] = useState('');
   const [debouncedAddress] = useDebounce(addressSearch, 300);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [propertyDetails, setPropertyDetails] = useState<{
-    property: Property;
-    owner: Contact;
-    tenants: Contact[];
-  } | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [properties, setProperties] = useState([]);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [propertyDetails, setPropertyDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  // // @ts-expect-error
   const [newPropertyData, setNewPropertyData] = useState({
     address: '',
     postCode: '',
-    owner: null as Contact | null,
-    tenants: [] as Contact[],
+    owner: null,
+    tenants: [],
     notes: '',
   });
-  // // @ts-expect-error
   const [ownerSearch, setOwnerSearch] = useState('');
   const [debouncedOwner] = useDebounce(ownerSearch, 300);
-  // // @ts-expect-error
   const [isNewOwner, setIsNewOwner] = useState(false);
-  // // @ts-expect-error
   const [newOwnerData, setNewOwnerData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     mobile: '',
   });
-  // // @ts-expect-error
-  const [selectedOwner, setSelectedOwner] = useState<Contact | null>(null);
-  // // @ts-expect-error
+  const [selectedOwner, setSelectedOwner] = useState(null);
   const [tenantSearch, setTenantSearch] = useState('');
-  // // @ts-expect-error
   const [debouncedTenant] = useDebounce(tenantSearch, 300);
-  // // @ts-expect-error
-  const [filteredTenants, setFilteredTenants] = useState<Contact[]>([]);
-  // // @ts-expect-error
+  const [filteredTenants, setFilteredTenants] = useState([]);
   const [isNewTenant, setIsNewTenant] = useState(false);
-  // // @ts-expect-error
   const [newTenantData, setNewTenantData] = useState({
     firstName: '',
     lastName: '',
@@ -157,66 +142,43 @@ export default function ComplianceCheckForm() {
     mobile: '',
     landline: '',
   });
-  // // @ts-expect-error
-  const [editingTenantIndex, setEditingTenantIndex] = useState<number | null>(null);
-  // // // @ts-expect-error
-  const [tenants, setTenants] = useState<Contact[]>([]);
-  const jobTypes = [
-    "Gas Safety Check",
-    "Legionella Testing",
-    "Smoke, Heat, and CO Alarms Testing",
-    "Electrical Safety Check",
-    "PAT Testing",
-    "EPC (Energy Performance Certificate)",
-    "Lead and Water Testing",
-    "Boiler Maintenance and Pressure Checks"
-  ];
-  const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([
-    "Gas Safety Check",
-    "Legionella Testing",
-    "Smoke, Heat, and CO Alarms Testing",
-    "Electrical Safety Check",
-    "PAT Testing"
-  ]);
+  const [editingTenantIndex, setEditingTenantIndex] = useState(null);
+  const [tenants, setTenants] = useState([]);
+  const [filteredOwners, setFilteredOwners] = useState([]);
+  const [isNewProperty, setIsNewProperty] = useState(false);
+  const [newCheckData, setNewCheckData] = useState({
+    accessType: 'unknown',
+    jobTypes: [],
+    month: new Date().toLocaleString('default', { month: 'long' }),
+    year: new Date().getFullYear(),
+    notes: ''
+  });
+  const [companySearch, setCompanySearch] = useState('');
+  const [debouncedCompany] = useDebounce(companySearch, 300);
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const [isEditingOwner, setIsEditingOwner] = useState(false);
   const [editedOwnerData, setEditedOwnerData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     mobile: '',
-    landline: '',
+    company: '',
+    role: 'Private Landlord'
   });
-  const currentYear = new Date().getFullYear();
-  const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('default', { month: 'long' }));
-  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
-  const [notes, setNotes] = useState<string>('');
-  // @ts-expect-error: isEditing may not be used yet, kept for future development
-  const [isEditing, setIsEditing] = useState<string | null>(null);
-  // // @ts-expect-error kjf
-  // const [editData, setEditData] = useState<{
-  //   jobTypes: string[];
-  //   month: string;
-  //   year: number;
-  //   notes: string;
-  // }>({
-  //   jobTypes: [],
-  //   month: '',
-  //   year: currentYear,
-  //   notes: ''
-  // });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCheck, setEditingCheck] = useState(null);
   const [showNewCheckForm, setShowNewCheckForm] = useState(false);
-  const [companySearch, setCompanySearch] = useState('');
-  const [debouncedCompany] = useDebounce(companySearch, 300);
-  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
-  const [filteredOwners, setFilteredOwners] = useState<Contact[]>([]);
-  const [isNewProperty, setIsNewProperty] = useState(false);
-  const [newCheckData, setNewCheckData] = useState<NewCheckData>({
-    accessType: 'unconfirmed',  // Changed default to 'unconfirmed'
-    jobTypes: [],
-    month: new Date().toLocaleString('default', { month: 'long' }),
-    year: new Date().getFullYear(),
-    notes: ''
-  });
+  const [selectedJobTypes, setSelectedJobTypes] = useState([
+    'Gas Safety Check',
+    'Legionella Testing',
+    'Smoke, Heat, and CO Alarms Testing',
+    'Electrical Safety Check',
+    'PAT Testing'
+  ]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'long' }));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [notes, setNotes] = useState('');
+  const [isEditingTenant, setIsEditingTenant] = useState(false);
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -230,6 +192,11 @@ export default function ComplianceCheckForm() {
     "Western Lettings"
   ];
 
+  const years = Array.from(
+    { length: 6 }, 
+    (_, i) => new Date().getFullYear() + i
+  );
+
   useEffect(() => {
     if (debouncedCompany) {
       setShowCompanyDropdown(true);
@@ -238,7 +205,7 @@ export default function ComplianceCheckForm() {
     }
   }, [debouncedCompany]);
 
-  const handleJobTypeChange = (jobType: string) => {
+  const handleJobTypeChange = (jobType) => {
     setSelectedJobTypes(prev =>
       prev.includes(jobType)
         ? prev.filter(j => j !== jobType)
@@ -246,13 +213,14 @@ export default function ComplianceCheckForm() {
     );
   };
 
-  const handleEditOwner = (owner: Contact) => {
+  const handleEditOwner = (owner) => {
     setEditedOwnerData({
       firstName: owner.fields["First Name"],
       lastName: owner.fields["Last Name"],
       email: owner.fields.Email,
       mobile: owner.fields["Mobile Number"],
-      landline: owner.fields["Landline Number"] || '',
+      company: owner.fields.Company === "None" ? "" : owner.fields.Company,
+      role: owner.fields.Role || 'Private Landlord'
     });
     setCompanySearch(owner.fields.Company === "None" ? "" : owner.fields.Company);
     setIsEditingOwner(true);
@@ -274,9 +242,7 @@ export default function ComplianceCheckForm() {
       setIsLoading(true);
       const details = mockGetPropertyDetails(selectedProperty.id);
       if (details) {
-        // @ts-expect-error fgd
         setPropertyDetails(details);
-        // @ts-expect-error fgd
         setTenants(details.tenants);
       }
       setIsLoading(false);
@@ -298,13 +264,42 @@ export default function ComplianceCheckForm() {
     if (debouncedTenant.length > 1) {
       setIsLoading(true);
       const results = mockSearchTenants(debouncedTenant, tenants);
-      // @ts-expect-error
       setFilteredTenants(results.tenants);
       setIsLoading(false);
     } else {
       setFilteredTenants([]);
     }
   }, [debouncedTenant, tenants]);
+
+  const handleEditCheck = (check) => {
+    setEditingCheck(check);
+    setIsEditing(true);
+    setNewCheckData({
+      accessType: check.accessType || 'unknown',
+      jobTypes: check.jobTypes || [],
+      month: check.month || new Date().toLocaleString('default', { month: 'long' }),
+      year: check.year || new Date().getFullYear(),
+      notes: check.notes || ''
+    });
+  };
+
+  const handleSaveEdit = () => {
+    console.log('Saving edited check:', newCheckData);
+    setIsEditing(false);
+    setEditingCheck(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingCheck(null);
+    setNewCheckData({
+      accessType: 'unknown',
+      jobTypes: [],
+      month: new Date().toLocaleString('default', { month: 'long' }),
+      year: new Date().getFullYear(),
+      notes: ''
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -381,6 +376,7 @@ export default function ComplianceCheckForm() {
                       postCode: ''
                     });
                     setIsNewProperty(true);
+                    setSelectedProperty(null);
                   }}
                   className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-green-50 text-green-700"
                 >
@@ -394,7 +390,8 @@ export default function ComplianceCheckForm() {
           )}
         </div>
 
-        {propertyDetails && (
+        {/* Existing Property Flow */}
+        {selectedProperty && propertyDetails && (
           <div className="space-y-6">
             {/* Property Details - Always show */}
             <div className="bg-blue-50 p-4 rounded-md">
@@ -410,7 +407,7 @@ export default function ComplianceCheckForm() {
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Owner Details</h3>
-                {!propertyDetails?.owner && (
+                {!propertyDetails?.owner && !isNewOwner && (
                   <button
                     onClick={() => setIsNewOwner(true)}
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 hover:text-blue-800"
@@ -421,15 +418,99 @@ export default function ComplianceCheckForm() {
                 )}
               </div>
 
+              {/* Owner Search - Show when adding new */}
+              {isNewOwner && (
+                <div className="mb-4 bg-white p-4 rounded-md shadow-sm">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <SearchIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      value={ownerSearch}
+                      onChange={(e) => setOwnerSearch(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="Search for owner by name or email..."
+                    />
+                    {ownerSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setOwnerSearch('')}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        <XCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Search Results */}
+                  {ownerSearch.length > 0 && (
+                    <div className="mt-2 border border-gray-200 rounded-md">
+                      <ul className="max-h-60 rounded-md py-1 text-base overflow-auto">
+                        {filteredOwners.map((owner) => (
+                          <li
+                            key={owner.id}
+                            onClick={() => {
+                              setPropertyDetails({
+                                ...propertyDetails,
+                                owner: owner
+                              });
+                              setOwnerSearch('');
+                              setIsNewOwner(false);
+                            }}
+                            className="cursor-pointer py-2 px-3 hover:bg-blue-50"
+                          >
+                            <div className="flex justify-between">
+                              <span>
+                                {owner.fields["First Name"]} {owner.fields["Last Name"]}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                {owner.fields.Email}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                        <li
+                          onClick={() => {
+                            setNewOwnerData({
+                              ...newOwnerData,
+                              firstName: ownerSearch.split(' ')[0] || '',
+                              lastName: ownerSearch.split(' ').slice(1).join(' ') || ''
+                            });
+                            setIsEditingOwner(true);
+                            setIsNewOwner(false);
+                            setOwnerSearch('');
+                          }}
+                          className="cursor-pointer py-2 px-3 hover:bg-green-50 text-green-700"
+                        >
+                          <div className="flex items-center">
+                            <PlusCircleIcon className="h-5 w-5 mr-2" />
+                            <span>Add new owner: "{ownerSearch}"</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setIsNewOwner(false);
+                      setOwnerSearch('');
+                    }}
+                    className="mt-2 text-sm text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
               {/* Current Owner Display */}
               {propertyDetails?.owner && !isEditingOwner && (
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <div className="flex justify-between items-start">
                     <div>
-                      {/* @ts-expect-error */}
                       {propertyDetails.owner.fields.Company !== "None" && (
                         <p className="text-sm font-medium text-gray-600 mb-1">
-                          {/* @ts-expect-error */}
                           {propertyDetails.owner.fields.Company}
                         </p>
                       )}
@@ -453,7 +534,7 @@ export default function ComplianceCheckForm() {
               )}
 
               {/* Edit Owner Form */}
-              {propertyDetails?.owner && isEditingOwner && (
+              {isEditingOwner && (
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <div className="space-y-4">
                     {/* Company Field */}
@@ -468,7 +549,6 @@ export default function ComplianceCheckForm() {
                           value={companySearch}
                           onChange={(e) => {
                             setCompanySearch(e.target.value);
-                            // @ts-expect-error
                             setEditedOwnerData({ ...editedOwnerData, company: e.target.value });
                           }}
                           onFocus={() => setShowCompanyDropdown(true)}
@@ -502,7 +582,6 @@ export default function ComplianceCheckForm() {
                                   key={company}
                                   onClick={() => {
                                     setCompanySearch(company);
-                                    // @ts-expect-error
                                     setEditedOwnerData({ ...editedOwnerData, company });
                                     setShowCompanyDropdown(false);
                                   }}
@@ -516,8 +595,6 @@ export default function ComplianceCheckForm() {
                             ) && (
                               <li
                                 onClick={() => {
-                                  // Keep the custom company name
-                                  // @ts-expect-error
                                   setEditedOwnerData({ ...editedOwnerData, company: companySearch });
                                   setShowCompanyDropdown(false);
                                 }}
@@ -525,7 +602,6 @@ export default function ComplianceCheckForm() {
                               >
                                 <div className="flex items-center">
                                   <PlusCircleIcon className="h-5 w-5 mr-2" />
-                                  {/* @ts-expect-error */}
                                   <span>Add new company: "{companySearch}"</span>
                                 </div>
                               </li>
@@ -561,9 +637,7 @@ export default function ComplianceCheckForm() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Role</label>
                       <select
-                        // @ts-expect-error
                         value={editedOwnerData.role}
-                        // @ts-expect-error
                         onChange={(e) => setEditedOwnerData({ ...editedOwnerData, role: e.target.value })}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
@@ -610,9 +684,7 @@ export default function ComplianceCheckForm() {
                                 ...propertyDetails.owner.fields,
                                 "First Name": editedOwnerData.firstName,
                                 "Last Name": editedOwnerData.lastName,
-                                // @ts-expect-error
                                 "Role": editedOwnerData.role,
-                                // @ts-expect-error
                                 "Company": editedOwnerData.role === "Private Landlord" ? "None" : editedOwnerData.company,
                                 "Email": editedOwnerData.email,
                                 "Mobile Number": editedOwnerData.mobile
@@ -754,9 +826,7 @@ export default function ComplianceCheckForm() {
 
                             {/* Access Type Indicator */}
                             <div className="mt-2">
-                              {/* @ts-expect-error */}
                               <span className={`text-sm font-medium ${getAccessTypeColor(check.fields.AccessType || 'tenant')}`}>
-                                {/* @ts-expect-error */}
                                 {check.fields.AccessType === 'key' ? '🔑 Key Required' : '👤 Tenant Access'}
                               </span>
                             </div>
@@ -786,7 +856,6 @@ export default function ComplianceCheckForm() {
                           {/* Edit button if needed */}
                           {!isEditing && (
                             <button
-                              // @ts-expect-error
                               onClick={() => handleEditCheck(check)}
                               className="text-sm text-blue-600 hover:text-blue-800"
                             >
@@ -836,8 +905,7 @@ export default function ComplianceCheckForm() {
             {/* Add New Check Button - Always show if property is selected */}
             <div className="flex justify-center mt-6">
               <button
-                type="button"
-                onClick={() => setShowNewCheckForm(!showNewCheckForm)}
+                onClick={() => setShowNewCheckForm(prev => !prev)}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 {showNewCheckForm ? 'Cancel New Check' : 'Add New Compliance Check'}
@@ -850,43 +918,40 @@ export default function ComplianceCheckForm() {
                 <h3 className="text-lg font-medium text-gray-900 mb-4">New Compliance Check</h3>
                 
                 {/* Access Type Selection */}
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-700 mb-2">Access Type</h4>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="accessType"
-                        value="unconfirmed"
-                        checked={newCheckData.accessType === 'unconfirmed'}
-                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
-                        className="mr-2"
-                      />
-                      <span className="text-gray-600">❓ Unconfirmed</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="accessType"
-                        value="key"
-                        checked={newCheckData.accessType === 'key'}
-                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
-                        className="mr-2"
-                      />
-                      <span className="text-red-600">🔑 Key Required</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="accessType"
-                        value="tenant"
-                        checked={newCheckData.accessType === 'tenant'}
-                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
-                        className="mr-2"
-                      />
-                      <span className="text-black">👤 Tenant Access</span>
-                    </label>
-                  </div>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="accessType"
+                      value="unknown"
+                      checked={newCheckData.accessType === 'unknown'}
+                      onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
+                      className="mr-2"
+                    />
+                    <span className="text-gray-600">❓ Unknown</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="accessType"
+                      value="key"
+                      checked={newCheckData.accessType === 'key'}
+                      onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
+                      className="mr-2"
+                    />
+                    <span className="text-red-600">🔑 Key Required</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="accessType"
+                      value="tenant"
+                      checked={newCheckData.accessType === 'tenant'}
+                      onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
+                      className="mr-2"
+                    />
+                    <span className="text-black">👤 Tenant Access</span>
+                  </label>
                 </div>
 
                 {/* Select Job Types */}
@@ -896,9 +961,7 @@ export default function ComplianceCheckForm() {
                     <div key={jobType} className="flex items-center">
                       <input
                         type="checkbox"
-                        // @ts-expect-error
                         checked={selectedJobTypes.includes(jobType)}
-                        // @ts-expect-error
                         onChange={() => handleJobTypeChange(jobType)}
                         className="h-4 w-4 border-gray-300 rounded"
                       />
@@ -917,7 +980,6 @@ export default function ComplianceCheckForm() {
                   <div className="flex space-x-4">
                     <select
                       value={selectedMonth}
-                      // @ts-expect-error
                       onChange={(e) => setSelectedMonth(e.target.value)}
                       className="block w-full px-3 py-2 border rounded-md"
                     >
@@ -927,12 +989,13 @@ export default function ComplianceCheckForm() {
                     </select>
                     <select
                       value={selectedYear}
-                      // @ts-expect-error
                       onChange={(e) => setSelectedYear(Number(e.target.value))}
                       className="block w-full px-3 py-2 border rounded-md"
                     >
-                      {[currentYear, currentYear + 1, currentYear + 2].map(year => (
-                        <option key={year} value={year}>{year}</option>
+                      {years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -961,6 +1024,186 @@ export default function ComplianceCheckForm() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* New Property Flow */}
+        {isNewProperty && (
+          <div className="space-y-6">
+            {/* Property Details Form */}
+            <div className="mt-4 space-y-4 bg-white p-4 rounded-md shadow-sm">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Address</label>
+                <input
+                  type="text"
+                  value={newPropertyData.address}
+                  onChange={(e) => setNewPropertyData({
+                    ...newPropertyData,
+                    address: e.target.value
+                  })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Post Code</label>
+                <input
+                  type="text"
+                  value={newPropertyData.postCode}
+                  onChange={(e) => setNewPropertyData({
+                    ...newPropertyData,
+                    postCode: e.target.value
+                  })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setIsNewProperty(false);
+                    setNewPropertyData({
+                      address: '',
+                      postCode: '',
+                      owner: null,
+                      tenants: [],
+                      notes: ''
+                    });
+                  }}
+                  className="px-3 py-2 border rounded-md text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (newPropertyData.address && newPropertyData.postCode) {
+                      // Create a mock property object to match the structure of existing properties
+                      const mockProperty = {
+                        id: `new-${Date.now()}`,
+                        fields: {
+                          Address: newPropertyData.address,
+                          "Post Code": newPropertyData.postCode,
+                          "Property ID": `NEW-${Date.now()}`
+                        }
+                      };
+                      setSelectedProperty(mockProperty);
+                      setPropertyDetails({
+                        property: mockProperty,
+                        owner: null,
+                        tenants: []
+                      });
+                      setIsNewProperty(false);
+                    }
+                  }}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
+                >
+                  Create Property
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* New Tenant Form */}
+        {isEditingTenant && (
+          <div className="mb-4 bg-white p-4 rounded-md shadow-sm">
+            <h4 className="text-md font-medium text-gray-700 mb-4">New Tenant Details</h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">First Name</label>
+                <input
+                  type="text"
+                  value={newTenantData.firstName}
+                  onChange={(e) => setNewTenantData({ ...newTenantData, firstName: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                <input
+                  type="text"
+                  value={newTenantData.lastName}
+                  onChange={(e) => setNewTenantData({ ...newTenantData, lastName: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={newTenantData.email}
+                  onChange={(e) => setNewTenantData({ ...newTenantData, email: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
+                <input
+                  type="tel"
+                  value={newTenantData.mobile}
+                  onChange={(e) => setNewTenantData({ ...newTenantData, mobile: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Landline (Optional)</label>
+                <input
+                  type="tel"
+                  value={newTenantData.landline}
+                  onChange={(e) => setNewTenantData({ ...newTenantData, landline: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setIsEditingTenant(false);
+                    setNewTenantData({
+                      firstName: '',
+                      lastName: '',
+                      email: '',
+                      mobile: '',
+                      landline: ''
+                    });
+                  }}
+                  className="px-3 py-2 border rounded-md text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Create a new tenant object
+                    const newTenant = {
+                      id: `new-${Date.now()}`,
+                      fields: {
+                        "First Name": newTenantData.firstName,
+                        "Last Name": newTenantData.lastName,
+                        "Email": newTenantData.email,
+                        "Mobile Number": newTenantData.mobile,
+                        "Landline": newTenantData.landline || ''
+                      }
+                    };
+                    setTenants([...tenants, newTenant]);
+                    setIsEditingTenant(false);
+                    setNewTenantData({
+                      firstName: '',
+                      lastName: '',
+                      email: '',
+                      mobile: '',
+                      landline: ''
+                    });
+                  }}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
+                >
+                  Save Tenant
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
