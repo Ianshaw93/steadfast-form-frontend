@@ -285,7 +285,7 @@ export default function ComplianceCheckForm() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Property Compliance History
+          Property Compliance Test Form
         </h2>
 
         {/* Loading Indicator */}
@@ -657,29 +657,48 @@ export default function ComplianceCheckForm() {
                       </button>
                       <button
                         onClick={() => {
-                          if (propertyDetails?.owner) {
-                            const updatedOwner = {
-                              ...propertyDetails.owner,
-                              fields: {
-                                ...propertyDetails.owner.fields,
-                                "First Name": editedOwnerData.firstName,
-                                "Last Name": editedOwnerData.lastName,
-                                "Role": editedOwnerData.role,
-                                "Company": editedOwnerData.role === "Private Landlord" ? "None" : editedOwnerData.company,
-                                "Email": editedOwnerData.email,
-                                "Mobile Number": editedOwnerData.mobile
-                              }
+                          // First create the new owner object
+                          const newOwner = {
+                            id: `new-${Date.now()}`,
+                            fields: {
+                              "First Name": editedOwnerData.firstName,
+                              "Last Name": editedOwnerData.lastName,
+                              "Email": editedOwnerData.email,
+                              "Mobile Number": editedOwnerData.mobile,
+                              "Company": editedOwnerData.company || "None",
+                              "Role": editedOwnerData.role
+                            }
+                          };
+
+                          // Log to verify the data
+                          console.log('Adding new owner:', newOwner);
+
+                          // Update propertyDetails using the callback form of setState
+                          setPropertyDetails(prevDetails => {
+                            console.log('Previous details:', prevDetails);
+                            const updatedDetails = {
+                              ...prevDetails,
+                              owner: newOwner
                             };
-                            setPropertyDetails({
-                              ...propertyDetails,
-                              owner: updatedOwner
-                            });
-                          }
+                            console.log('Updated details:', updatedDetails);
+                            return updatedDetails;
+                          });
+
+                          // Reset the form
                           setIsEditingOwner(false);
+                          setIsNewOwner(false);
+                          setEditedOwnerData({
+                            firstName: '',
+                            lastName: '',
+                            email: '',
+                            mobile: '',
+                            company: '',
+                            role: 'Private Landlord'
+                          });
                         }}
                         className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
                       >
-                        Save
+                        Save Owner
                       </button>
                     </div>
                   </div>
@@ -691,17 +710,126 @@ export default function ComplianceCheckForm() {
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Tenant Details</h3>
-                <button
-                  onClick={() => setIsNewTenant(true)}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 hover:text-blue-800"
-                >
-                  <PlusCircleIcon className="h-5 w-5 mr-1" />
-                  Add New Tenant
-                </button>
+                {!isEditingTenant && (
+                  <button
+                    onClick={() => setIsNewTenant(true)}
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 hover:text-blue-800"
+                  >
+                    <PlusCircleIcon className="h-5 w-5 mr-1" />
+                    Add New Tenant
+                  </button>
+                )}
               </div>
 
-              {/* New Tenant Search - Only shows when adding new */}
-              {isNewTenant && (
+              {/* New Tenant Form */}
+              {isEditingTenant && (
+                <div className="mb-4 bg-white p-4 rounded-md shadow-sm">
+                  <h4 className="text-md font-medium text-gray-700 mb-4">New Tenant Details</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">First Name</label>
+                      <input
+                        type="text"
+                        value={newTenantData.firstName}
+                        onChange={(e) => setNewTenantData({ ...newTenantData, firstName: e.target.value })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                      <input
+                        type="text"
+                        value={newTenantData.lastName}
+                        onChange={(e) => setNewTenantData({ ...newTenantData, lastName: e.target.value })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Email</label>
+                      <input
+                        type="email"
+                        value={newTenantData.email}
+                        onChange={(e) => setNewTenantData({ ...newTenantData, email: e.target.value })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
+                      <input
+                        type="tel"
+                        value={newTenantData.mobile}
+                        onChange={(e) => setNewTenantData({ ...newTenantData, mobile: e.target.value })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Landline (Optional)</label>
+                      <input
+                        type="tel"
+                        value={newTenantData.landline}
+                        onChange={(e) => setNewTenantData({ ...newTenantData, landline: e.target.value })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => {
+                          console.log('Canceling tenant edit');
+                          setIsEditingTenant(false);
+                          setIsNewTenant(false);
+                          setNewTenantData({
+                            firstName: '',
+                            lastName: '',
+                            email: '',
+                            mobile: '',
+                            landline: ''
+                          });
+                        }}
+                        className="px-3 py-2 border rounded-md text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          console.log('Saving new tenant');
+                          const newTenant = {
+                            id: `new-${Date.now()}`,
+                            fields: {
+                              "First Name": newTenantData.firstName,
+                              "Last Name": newTenantData.lastName,
+                              "Email": newTenantData.email,
+                              "Mobile Number": newTenantData.mobile,
+                              "Landline": newTenantData.landline || ''
+                            }
+                          };
+                          console.log('New tenant object:', newTenant);
+                          setTenants(prev => [...prev, newTenant]);
+                          setIsEditingTenant(false);
+                          setIsNewTenant(false);
+                          setNewTenantData({
+                            firstName: '',
+                            lastName: '',
+                            email: '',
+                            mobile: '',
+                            landline: ''
+                          });
+                        }}
+                        className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
+                      >
+                        Save Tenant
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Search interface - Only show when adding new and not editing */}
+              {isNewTenant && !isEditingTenant && (
                 <div className="mb-4 bg-white p-4 rounded-md shadow-sm">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -714,16 +842,26 @@ export default function ComplianceCheckForm() {
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
                       placeholder="Search for tenant by name, email, or phone..."
                     />
+                    {tenantSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setTenantSearch('')}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        <XCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Search Results */}
-                  {tenantSearch.length > 0 && filteredTenants.length > 0 && (
+                  {tenantSearch.length > 0 && (
                     <div className="mt-2 border border-gray-200 rounded-md">
                       <ul className="max-h-60 rounded-md py-1 text-base overflow-auto">
                         {filteredTenants.map((tenant) => (
                           <li
                             key={tenant.id}
                             onClick={() => {
+                              console.log('Existing tenant selected:', tenant);
                               setTenants([...tenants, tenant]);
                               setTenantSearch('');
                               setIsNewTenant(false);
@@ -731,21 +869,64 @@ export default function ComplianceCheckForm() {
                             className="cursor-pointer py-2 px-3 hover:bg-blue-50"
                           >
                             <div className="flex justify-between">
-                              <span>
-                                {tenant.fields["First Name"]} {tenant.fields["Last Name"]}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {tenant.fields.Email}
-                              </span>
+                              <div>
+                                <p>{tenant.fields["First Name"]} {tenant.fields["Last Name"]}</p>
+                                <p className="text-sm text-gray-500">{tenant.fields.Email}</p>
+                                <p className="text-sm text-gray-500">{tenant.fields["Mobile Number"]}</p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  const newTenants = tenants.filter(t => t.id !== tenant.id);
+                                  setTenants(newTenants);
+                                }}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                Remove
+                              </button>
                             </div>
                           </li>
                         ))}
+                        <li
+                          onClick={() => {
+                            console.log('Add new tenant clicked');
+                            console.log('Current search:', tenantSearch);
+                            console.log('Current isEditingTenant:', isEditingTenant);
+                            console.log('Current isNewTenant:', isNewTenant);
+                            
+                            // Update the new tenant data
+                            setNewTenantData(prev => {
+                              const updated = {
+                                ...prev,
+                                firstName: tenantSearch.split(' ')[0] || '',
+                                lastName: tenantSearch.split(' ').slice(1).join(' ') || ''
+                              };
+                              console.log('New tenant data:', updated);
+                              return updated;
+                            });
+
+                            // Switch modes
+                            setIsNewTenant(false);
+                            setIsEditingTenant(true);
+                            setTenantSearch('');
+
+                            console.log('States updated. isEditingTenant should now be true');
+                          }}
+                          className="cursor-pointer py-2 px-3 hover:bg-green-50 text-green-700"
+                        >
+                          <div className="flex items-center">
+                            <PlusCircleIcon className="h-5 w-5 mr-2" />
+                            <span>Add new tenant: &quot;{tenantSearch}&quot;</span>
+                          </div>
+                        </li>
                       </ul>
                     </div>
                   )}
-                  
+
                   <button
-                    onClick={() => setIsNewTenant(false)}
+                    onClick={() => {
+                      setIsNewTenant(false);
+                      setTenantSearch('');
+                    }}
                     className="mt-2 text-sm text-gray-600 hover:text-gray-800"
                   >
                     Cancel
@@ -753,7 +934,7 @@ export default function ComplianceCheckForm() {
                 </div>
               )}
 
-              {/* Existing Tenants List - Always visible */}
+              {/* Existing Tenants List */}
               <div className="space-y-4">
                 {tenants.map((tenant) => (
                   <div key={tenant.id} className="bg-white p-4 rounded-md shadow-sm">
@@ -1085,6 +1266,7 @@ export default function ComplianceCheckForm() {
         )}
 
         {/* New Tenant Form */}
+        {isEditingTenant && console.log('Rendering edit tenant form', {isEditingTenant, newTenantData})}
         {isEditingTenant && (
           <div className="mb-4 bg-white p-4 rounded-md shadow-sm">
             <h4 className="text-md font-medium text-gray-700 mb-4">New Tenant Details</h4>
@@ -1168,7 +1350,11 @@ export default function ComplianceCheckForm() {
                         "Landline": newTenantData.landline || ''
                       }
                     };
+                    
+                    // Add to tenants list
                     setTenants([...tenants, newTenant]);
+                    
+                    // Reset form
                     setIsEditingTenant(false);
                     setNewTenantData({
                       firstName: '',
