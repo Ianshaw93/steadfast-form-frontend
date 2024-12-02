@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { MagnifyingGlassIcon as SearchIcon, XCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
-import mockData from './mockData';
+import mockData from '../data/mockData';
 
 const jobTypes = [
   'Gas Safety Check',
