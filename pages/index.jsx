@@ -337,11 +337,11 @@ export default function ComplianceCheckForm() {
                     className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50"
                   >
                     <div className="flex items-center">
-                      <span className="font-normal block truncate">
+                      <span className="font-medium text-gray-900 block truncate">
                         {property.fields.Address}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-800 ml-2">
+                    <span className="text-sm text-gray-800">
                       {property.fields["Post Code"]}
                     </span>
                   </li>
@@ -441,7 +441,7 @@ export default function ComplianceCheckForm() {
                             className="cursor-pointer py-2 px-3 hover:bg-blue-50"
                           >
                             <div className="flex justify-between">
-                              <span>
+                              <span className="text-gray-900">
                                 {owner.fields["First Name"]} {owner.fields["Last Name"]}
                               </span>
                               <span className="text-sm text-gray-800">
@@ -490,11 +490,11 @@ export default function ComplianceCheckForm() {
                   <div className="flex justify-between items-start">
                     <div>
                       {propertyDetails.owner.fields.Company !== "None" && (
-                        <p className="text-sm font-medium text-gray-600 mb-1">
+                        <p className="text-sm font-medium text-gray-800 mb-1">
                           {propertyDetails.owner.fields.Company}
                         </p>
                       )}
-                      <p className="font-medium">
+                      <p className="font-medium text-gray-900">
                         {propertyDetails.owner.fields["First Name"]} {propertyDetails.owner.fields["Last Name"]}
                       </p>
                       <p className="text-sm text-gray-800">{propertyDetails.owner.fields.Email}</p>
@@ -870,7 +870,9 @@ export default function ComplianceCheckForm() {
                           >
                             <div className="flex justify-between">
                               <div>
-                                <p>{tenant.fields["First Name"]} {tenant.fields["Last Name"]}</p>
+                                <p className="font-medium text-gray-900">
+                                  {tenant.fields["First Name"]} {tenant.fields["Last Name"]}
+                                </p>
                                 <p className="text-sm text-gray-800">{tenant.fields.Email}</p>
                                 <p className="text-sm text-gray-800">{tenant.fields["Mobile Number"]}</p>
                               </div>
@@ -940,7 +942,9 @@ export default function ComplianceCheckForm() {
                   <div key={tenant.id} className="bg-white p-4 rounded-md shadow-sm">
                     <div className="flex justify-between">
                       <div>
-                        <p>{tenant.fields["First Name"]} {tenant.fields["Last Name"]}</p>
+                        <p className="font-medium text-gray-900">
+                          {tenant.fields["First Name"]} {tenant.fields["Last Name"]}
+                        </p>
                         <p className="text-sm text-gray-800">{tenant.fields.Email}</p>
                         <p className="text-sm text-gray-800">{tenant.fields["Mobile Number"]}</p>
                       </div>
