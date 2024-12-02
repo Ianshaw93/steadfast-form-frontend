@@ -180,7 +180,7 @@ export default function ComplianceCheckForm() {
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('default', { month: 'long' }));
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [notes, setNotes] = useState<string>('');
-  // @ts-expect-error not used it
+  // @ts-expect-error: isEditing may not be used yet, kept for future development
   const [isEditing, setIsEditing] = useState<string | null>(null);
   // // @ts-expect-error kjf
   // const [editData, setEditData] = useState<{
