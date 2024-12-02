@@ -291,13 +291,13 @@ export default function ComplianceCheckForm() {
         {/* Loading Indicator */}
         {isLoading && (
           <div className="text-center mb-4">
-            <span className="text-gray-500">Loading...</span>
+            <span className="text-gray-800">Loading...</span>
           </div>
         )}
 
         {/* Property Search Section - Always visible */}
         <div className="space-y-4 mb-8">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-800">
             Property Search
           </label>
           <div className="relative">
@@ -375,11 +375,11 @@ export default function ComplianceCheckForm() {
           <div className="space-y-6">
             {/* Property Details - Always show */}
             <div className="bg-blue-50 p-4 rounded-md">
-              <h3 className="text-lg font-medium text-blue-900">Selected Property</h3>
-              <div className="mt-2 text-sm text-blue-700">
+              <h3 className="text-lg font-medium text-gray-900">Selected Property</h3>
+              <div className="mt-2 text-gray-800">
                 <p>{propertyDetails.property.fields.Address}</p>
                 <p>{propertyDetails.property.fields["Post Code"]}</p>
-                <p className="text-xs mt-1">ID: {propertyDetails.property.fields["Property ID"]}</p>
+                <p className="text-sm mt-1">ID: {propertyDetails.property.fields["Property ID"]}</p>
               </div>
             </div>
 
@@ -390,7 +390,7 @@ export default function ComplianceCheckForm() {
                 {!propertyDetails?.owner && !isNewOwner && (
                   <button
                     onClick={() => setIsNewOwner(true)}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 hover:text-blue-800"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-800 hover:text-gray-900"
                   >
                     <PlusCircleIcon className="h-5 w-5 mr-1" />
                     Add New Owner
@@ -713,7 +713,7 @@ export default function ComplianceCheckForm() {
                 {!isEditingTenant && (
                   <button
                     onClick={() => setIsNewTenant(true)}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 hover:text-blue-800"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-800 hover:text-gray-900"
                   >
                     <PlusCircleIcon className="h-5 w-5 mr-1" />
                     Add New Tenant
