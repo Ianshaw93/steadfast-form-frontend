@@ -130,7 +130,7 @@ export default function ComplianceCheckForm() {
     email: '',
     mobile: '',
   });
-  const [selectedOwner, setSelectedOwner] = useState(null);
+  // const [selectedOwner, setSelectedOwner] = useState(null);
   const [tenantSearch, setTenantSearch] = useState('');
   const [debouncedTenant] = useDebounce(tenantSearch, 300);
   const [filteredTenants, setFilteredTenants] = useState([]);
@@ -142,7 +142,7 @@ export default function ComplianceCheckForm() {
     mobile: '',
     landline: '',
   });
-  const [editingTenantIndex, setEditingTenantIndex] = useState(null);
+  // const [editingTenantIndex, setEditingTenantIndex] = useState(null);
   const [tenants, setTenants] = useState([]);
   const [filteredOwners, setFilteredOwners] = useState([]);
   const [isNewProperty, setIsNewProperty] = useState(false);
@@ -166,7 +166,6 @@ export default function ComplianceCheckForm() {
     role: 'Private Landlord'
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [editingCheck, setEditingCheck] = useState(null);
   const [showNewCheckForm, setShowNewCheckForm] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState([
     'Gas Safety Check',
@@ -272,7 +271,6 @@ export default function ComplianceCheckForm() {
   }, [debouncedTenant, tenants]);
 
   const handleEditCheck = (check) => {
-    setEditingCheck(check);
     setIsEditing(true);
     setNewCheckData({
       accessType: check.accessType || 'unknown',
@@ -280,24 +278,6 @@ export default function ComplianceCheckForm() {
       month: check.month || new Date().toLocaleString('default', { month: 'long' }),
       year: check.year || new Date().getFullYear(),
       notes: check.notes || ''
-    });
-  };
-
-  const handleSaveEdit = () => {
-    console.log('Saving edited check:', newCheckData);
-    setIsEditing(false);
-    setEditingCheck(null);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditingCheck(null);
-    setNewCheckData({
-      accessType: 'unknown',
-      jobTypes: [],
-      month: new Date().toLocaleString('default', { month: 'long' }),
-      year: new Date().getFullYear(),
-      notes: ''
     });
   };
 
@@ -382,7 +362,7 @@ export default function ComplianceCheckForm() {
                 >
                   <div className="flex items-center">
                     <PlusCircleIcon className="h-5 w-5 mr-2" />
-                    <span>Add new property: "{addressSearch}"</span>
+                    <span>Add new property: &quot;{addressSearch}&quot;</span>
                   </div>
                 </li>
               </ul>
@@ -485,7 +465,7 @@ export default function ComplianceCheckForm() {
                         >
                           <div className="flex items-center">
                             <PlusCircleIcon className="h-5 w-5 mr-2" />
-                            <span>Add new owner: "{ownerSearch}"</span>
+                            <span>Add new owner: &quot;{ownerSearch}&quot;</span>
                           </div>
                         </li>
                       </ul>
@@ -602,7 +582,7 @@ export default function ComplianceCheckForm() {
                               >
                                 <div className="flex items-center">
                                   <PlusCircleIcon className="h-5 w-5 mr-2" />
-                                  <span>Add new company: "{companySearch}"</span>
+                                  <span>Add new company: &quot;{companySearch}&quot;</span>
                                 </div>
                               </li>
                             )}
@@ -775,7 +755,7 @@ export default function ComplianceCheckForm() {
 
               {/* Existing Tenants List - Always visible */}
               <div className="space-y-4">
-                {tenants.map((tenant, index) => (
+                {tenants.map((tenant) => (
                   <div key={tenant.id} className="bg-white p-4 rounded-md shadow-sm">
                     <div className="flex justify-between">
                       <div>
