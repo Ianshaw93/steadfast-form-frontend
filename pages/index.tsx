@@ -98,6 +98,15 @@ const getJobTypeColor = (jobType: string) => {
   }
 };
 
+// Update the interface to include 'unconfirmed' as a valid access type
+interface NewCheckData {
+  accessType: 'key' | 'tenant' | 'unconfirmed';
+  jobTypes: string[];
+  month: string;
+  year: number;
+  notes: string;
+}
+
 export default function ComplianceCheckForm() {
   const [addressSearch, setAddressSearch] = useState('');
   const [debouncedAddress] = useDebounce(addressSearch, 300);
@@ -111,45 +120,46 @@ export default function ComplianceCheckForm() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
   // // @ts-expect-error
-  // const [newPropertyData, setNewPropertyData] = useState({
-  //   address: '',
-  //   postCode: '',
-  // });
+  const [newPropertyData, setNewPropertyData] = useState({
+    address: '',
+    postCode: '',
+    owner: null as Contact | null,
+    tenants: [] as Contact[],
+    notes: '',
+  });
   // // @ts-expect-error
   const [ownerSearch, setOwnerSearch] = useState('');
   const [debouncedOwner] = useDebounce(ownerSearch, 300);
   // // @ts-expect-error
-  // const [filteredOwners, setFilteredOwners] = useState<Contact[]>([]);
+  const [isNewOwner, setIsNewOwner] = useState(false);
   // // @ts-expect-error
-  // const [isNewOwner, setIsNewOwner] = useState(false);
+  const [newOwnerData, setNewOwnerData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobile: '',
+  });
   // // @ts-expect-error
-  // const [newOwnerData, setNewOwnerData] = useState({
-  //   firstName: '',
-  //   lastName: '',
-  //   email: '',
-  //   mobile: '',
-  // });
+  const [selectedOwner, setSelectedOwner] = useState<Contact | null>(null);
   // // @ts-expect-error
-  // const [selectedOwner, setSelectedOwner] = useState<Contact | null>(null);
+  const [tenantSearch, setTenantSearch] = useState('');
   // // @ts-expect-error
-  // const [tenantSearch, setTenantSearch] = useState('');
-  // @ts-expect-error
   const [debouncedTenant] = useDebounce(tenantSearch, 300);
   // // @ts-expect-error
-  // const [filteredTenants, setFilteredTenants] = useState<Contact[]>([]);
+  const [filteredTenants, setFilteredTenants] = useState<Contact[]>([]);
   // // @ts-expect-error
-  // const [isNewTenant, setIsNewTenant] = useState(false);
+  const [isNewTenant, setIsNewTenant] = useState(false);
   // // @ts-expect-error
-  // const [newTenantData, setNewTenantData] = useState({
-  //   firstName: '',
-  //   lastName: '',
-  //   email: '',
-  //   mobile: '',
-  //   landline: '',
-  // });
+  const [newTenantData, setNewTenantData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobile: '',
+    landline: '',
+  });
   // // @ts-expect-error
-  // const [editingTenantIndex, setEditingTenantIndex] = useState<number | null>(null);
-  // // @ts-expect-error
+  const [editingTenantIndex, setEditingTenantIndex] = useState<number | null>(null);
+  // // // @ts-expect-error
   const [tenants, setTenants] = useState<Contact[]>([]);
   const jobTypes = [
     "Gas Safety Check",
@@ -198,6 +208,15 @@ export default function ComplianceCheckForm() {
   const [companySearch, setCompanySearch] = useState('');
   const [debouncedCompany] = useDebounce(companySearch, 300);
   const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
+  const [filteredOwners, setFilteredOwners] = useState<Contact[]>([]);
+  const [isNewProperty, setIsNewProperty] = useState(false);
+  const [newCheckData, setNewCheckData] = useState<NewCheckData>({
+    accessType: 'unconfirmed',  // Changed default to 'unconfirmed'
+    jobTypes: [],
+    month: new Date().toLocaleString('default', { month: 'long' }),
+    year: new Date().getFullYear(),
+    notes: ''
+  });
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -294,6 +313,13 @@ export default function ComplianceCheckForm() {
           Property Compliance History
         </h2>
 
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="text-center mb-4">
+            <span className="text-gray-500">Loading...</span>
+          </div>
+        )}
+
         {/* Property Search Section - Always visible */}
         <div className="space-y-4 mb-8">
           <label className="block text-sm font-medium text-gray-700">
@@ -349,7 +375,12 @@ export default function ComplianceCheckForm() {
                   onClick={() => {
                     setAddressSearch('');
                     setProperties([]);
-                    setNewPropertyData({ address: addressSearch, postCode: '' });
+                    setNewPropertyData({
+                      ...newPropertyData,
+                      address: addressSearch,
+                      postCode: ''
+                    });
+                    setIsNewProperty(true);
                   }}
                   className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-green-50 text-green-700"
                 >
@@ -826,11 +857,20 @@ export default function ComplianceCheckForm() {
                       <input
                         type="radio"
                         name="accessType"
+                        value="unconfirmed"
+                        checked={newCheckData.accessType === 'unconfirmed'}
+                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
+                        className="mr-2"
+                      />
+                      <span className="text-gray-600">❓ Unconfirmed</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="accessType"
                         value="key"
-                        // @ts-expect-error
                         checked={newCheckData.accessType === 'key'}
-                        // @ts-expect-error
-                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
+                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
                         className="mr-2"
                       />
                       <span className="text-red-600">🔑 Key Required</span>
@@ -840,10 +880,8 @@ export default function ComplianceCheckForm() {
                         type="radio"
                         name="accessType"
                         value="tenant"
-                        // @ts-expect-error
                         checked={newCheckData.accessType === 'tenant'}
-                        // @ts-expect-error
-                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value }))}
+                        onChange={(e) => setNewCheckData(prev => ({ ...prev, accessType: e.target.value as NewCheckData['accessType'] }))}
                         className="mr-2"
                       />
                       <span className="text-black">👤 Tenant Access</span>
