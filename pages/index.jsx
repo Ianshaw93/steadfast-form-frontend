@@ -308,7 +308,7 @@ export default function ComplianceCheckForm() {
               type="text"
               value={addressSearch}
               onChange={(e) => setAddressSearch(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-800 focus:outline-none focus:placeholder-gray-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Start typing address..."
             />
             {addressSearch && (
@@ -409,7 +409,7 @@ export default function ComplianceCheckForm() {
                       type="text"
                       value={ownerSearch}
                       onChange={(e) => setOwnerSearch(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-800 focus:outline-none focus:placeholder-gray-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Search for owner by name or email..."
                     />
                     {ownerSearch && (
@@ -499,7 +499,7 @@ export default function ComplianceCheckForm() {
                       </p>
                       <p className="text-sm text-gray-800">{propertyDetails.owner.fields.Email}</p>
                       <p className="text-sm text-gray-800">{propertyDetails.owner.fields["Mobile Number"]}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-800">
                         {propertyDetails.owner.fields.Role}
                       </p>
                     </div>
@@ -839,7 +839,7 @@ export default function ComplianceCheckForm() {
                       type="text"
                       value={tenantSearch}
                       onChange={(e) => setTenantSearch(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-600 focus:outline-none focus:placeholder-gray-500 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-800 focus:outline-none focus:placeholder-gray-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Search for tenant by name, email, or phone..."
                     />
                     {tenantSearch && (
